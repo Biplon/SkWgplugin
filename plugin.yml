@@ -1,6 +1,6 @@
 name: SKWGPlugin
 author: Vestri
 description: Plugin Skript Worldguard
-version: 0.1
+version: 1.0
 main: main.java.addon.SkWgPlugin
 depend: [Skript]

@@ -22,7 +22,8 @@ public class SkWgPlugin extends JavaPlugin
         {
             addon.loadClasses("main.java", "elements");
 
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
         }

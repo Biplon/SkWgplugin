@@ -24,24 +24,31 @@ public class ExprWorldGuardFlag extends SimpleExpression<String>
     private Expression<Region> region;
     private String flag;
 
-    static {
-        Skript.registerExpression(ExprWorldGuardFlag.class, String.class, ExpressionType.SIMPLE,"get %string% of %region%");
+    static
+    {
+        //register expression string = flag region = region
+        Skript.registerExpression(ExprWorldGuardFlag.class, String.class, ExpressionType.SIMPLE, "get %string% of %region%");
     }
 
     @Override
-    public Class<? extends String> getReturnType() {
+    public Class<? extends String> getReturnType()
+    {
         return String.class;
     }
 
     @Override
-    public boolean isSingle() {
+    public boolean isSingle()
+    {
         return true;
     }
 
     @SuppressWarnings({"unchecked", "null"})
     @Override
-    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parser) {
-        flag = exprs[0].toString().replace("\"","");
+    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parser)
+    {
+        //remove "" from incoming flag string and put it on string flag
+        flag = exprs[0].toString().replace("\"", "");
+        //put the incoming region on Expression region
         region = (Expression<Region>) exprs[1];
         return true;
     }
@@ -55,42 +62,44 @@ public class ExprWorldGuardFlag extends SimpleExpression<String>
     @Nullable
     protected String[] get(Event event)
     {
-        return new String[] {canPvPHere(event)};
+        return new String[]{getFlagValue(event)};
     }
 
     @SuppressWarnings({"unchecked", "null"})
-    public String canPvPHere(Event eve)
+    public String getFlagValue(Event eve)
     {
         try
         {
+            //Get the Expression region from the region
             Region reg = region.getSingle(eve);
+            //Get the worldguard regioncontainer
             RegionContainer container = com.sk89q.worldguard.WorldGuard.getInstance().getPlatform().getRegionContainer();
-            RegionManager regions = container.get(BukkitAdapter.adapt( Bukkit.getServer().getWorld(reg.toString().split(" ")[reg.toString().split(" ").length-1])));
+            //Get the worldguard region through the RegionContainer and BukkitAdapter
+            RegionManager regions = container.get(BukkitAdapter.adapt(Bukkit.getServer().getWorld(reg.toString().split(" ")[reg.toString().split(" ").length - 1])));
 
+            //check if flag has valid name
             if (StateFlag.isValidName(flag))
             {
                 try
                 {
-                    return regions.getRegion(reg.toString().split(" in ")[0]).getFlag(getFlagValue(flag)).toString();
+                    //get the value of the flag in this region
+                    return regions.getRegion(reg.toString().split(" in ")[0]).getFlag(WorldGuard.getInstance().getFlagRegistry().get(flag)).toString();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
+                    //return this if the flag in try was not found
                     return "flag not found";
                 }
 
             }
+            //return this if the flag has no valid name
             return "flag not found";
         }
         catch (Exception ex)
         {
-            return "you did make something wrong";
+            //return this if you made something wrong
+            return "you made something wrong";
         }
 
-    }
-
-    private Flag getFlagValue(String flagname)
-    {
-        Flag<?> flag = WorldGuard.getInstance().getFlagRegistry().get(flagname);
-        return flag;
     }
 }
